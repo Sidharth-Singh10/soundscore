@@ -3,9 +3,9 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('7529f016-46a0-49f5-a1e8-a3625714f32e')
-        BACKEND_IMAGE = 'sidharthsingh7/ss_backend'
-        FRONTEND_IMAGE = 'sidharthsingh7/ss_user_frontend'
-        DOCKER_TAG = '0.0.2.RELEASE'
+        BACKEND_IMAGE = 'sidharthsingh7/sstest_backend'
+        FRONTEND_IMAGE = 'sidharthsingh7/sstest_user_frontend'
+        DOCKER_TAG = '0.0.2.TEST'
     }
 
     stages {
