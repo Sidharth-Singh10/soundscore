@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('7529f016-46a0-49f5-a1e8-a3625714f32e')
+        DOCKERHUB_CREDENTIALS = credentials('1bf17b7b-f0cc-4196-9427-ba195926389e')
         BACKEND_IMAGE = 'sidharthsingh7/sstest_backend'
         FRONTEND_IMAGE = 'sidharthsingh7/sstest_user_frontend'
         DOCKER_TAG = '0.0.2.TEST'
@@ -37,7 +37,7 @@ pipeline {
                 stage('Push Backend Image') {
                     steps {
                         script {
-                            docker.withRegistry('https://index.docker.io/v1/', '7529f016-46a0-49f5-a1e8-a3625714f32e') {
+                            docker.withRegistry('https://index.docker.io/v1/', '1bf17b7b-f0cc-4196-9427-ba195926389e') {
                                 def backendImage = docker.image("$BACKEND_IMAGE:$DOCKER_TAG")
                                 backendImage.push()
                             }
@@ -47,7 +47,7 @@ pipeline {
                 stage('Push Frontend Image') {
                     steps {
                         script {
-                            docker.withRegistry('https://index.docker.io/v1/', '7529f016-46a0-49f5-a1e8-a3625714f32e') {
+                            docker.withRegistry('https://index.docker.io/v1/', '1bf17b7b-f0cc-4196-9427-ba195926389e') {
                                 def frontendImage = docker.image("$FRONTEND_IMAGE:$DOCKER_TAG")
                                 frontendImage.push()
                             }
