@@ -117,7 +117,7 @@ router.post("/task", authMiddleware, async (req, res) => {
   });
 });
 
-router.post("/presignedURL", authMiddleware, async (req, res) => {
+router.post("/presignedURL",  async (req, res) => {
   //@ts-ignore
   const userId = req.userId;
   //@ts-ignore

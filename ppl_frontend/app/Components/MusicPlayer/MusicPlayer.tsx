@@ -133,7 +133,7 @@ const MusicPlayer = ({ audioSrc, onSelect }: {
 
             <div className='rounded-3xl bg-white h-full w-full
             flex flex-col items-center
-            shadow-[0px_20px_125px_10px_rgba(39,_70,_132,_1)]
+                    shadow-[0px_20px_125px_10px_rgba(39,_70,_132,_1)]
             pt-8
             px-4
             gap-4

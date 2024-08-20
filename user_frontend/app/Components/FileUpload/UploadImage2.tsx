@@ -29,14 +29,7 @@ const UploadImage2 = ({ updateFileName, fileName, updateFileURL, fileURL }:
             setUploading(true);
             console.log("token is ", localStorage.getItem("token"));
 
-            const response = await axios.post(`${BACKEND_URL}/v1/user/presignedURL`, {
-                filename,
-            }, {
-                headers: {
-                    "Authorization": localStorage.getItem("token"),
-
-                }
-            });
+            const response = await axios.post(`${BACKEND_URL}/v1/user/presignedURL`, { filename });
             console.log("preResponse is ", response);
 
             const presignedUrl = response.data.preSignedUrl;
@@ -51,11 +44,11 @@ const UploadImage2 = ({ updateFileName, fileName, updateFileURL, fileURL }:
             formData.append("X-Amz-Signature", fields["X-Amz-Signature"]);
             formData.append("file", file);
 
-            const awsResponse = await axios.post("https://localhost:3001/runcode", formData);
+            const awsResponse = await axios.post(presignedUrl, formData);
             console.log(awsResponse);
             // console.log(response.data.key);
 
-            updateFileURL([`https://soundscorebucket.s3.ap-south-1.amazonaws.com/${response.data.fields["key"]}`]);
+            // updateFileURL([`https://soundscorebucket.s3.ap-south-1.amazonaws.com/${response.data.fields["key"]}`]);
             console.log(`https://soundscorebucket.s3.ap-south-1.amazonaws.com/${response.data.fields["key"]}`);
         }
         catch (e) {
