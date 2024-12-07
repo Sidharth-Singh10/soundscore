@@ -57,10 +57,6 @@ const MusicPlayer = ({ audioSrc, count }: {
         : "0%";
 
 
-    // const trackStyling = `
-    // -webkit-gradient(linear, 0% 0%, 100% 0%, color-stop(${currentPercentage}, #fff), color-stop(${currentPercentage}, #777))
-    // `;
-
     const startTimer = () => {
         clearInterval(intervalRef.current);
 
@@ -143,8 +139,7 @@ const MusicPlayer = ({ audioSrc, count }: {
                 '>
                     {renderImage()}
 
-                    {/* <img src= `data:${picture.format};base64,${uint8ArrayToBase64(metadata?.common.picture.)}` alt="/slowmotion.jpg" className='h-full w-full rounded-3xl' /> */}
-                    {/* <Image src="/slowmotion.jpg" alt="hello" width={100%} height={100}/> */}
+                    
 
                 </div>
 
