@@ -6,8 +6,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import MusicControls from './MusicControls';
 import { uint8ArrayToBase64 } from 'uint8array-extras';
 const MusicPlayertemp = () => {
-
-    var audioSrc = "https://soundscorebucket.s3.ap-south-1.amazonaws.com/beats/1/0.4551015283429436/Kayou+Jujutsu+Kaisen.mp3"
+    const audioSrc = ""
+    // var audioSrc = "https://soundscorebucket.s3.ap-south-1.amazonaws.com/beats/1/0.4551015283429436/Kayou+Jujutsu+Kaisen.mp3"
     const [trackProgress, setTrackProgress] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
 

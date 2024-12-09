@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 const router = Router();
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config";
@@ -86,55 +86,91 @@ router.get('/balance', workerAuthMiddleware,async(req,res)=>{
 })
 
 router.post("/submission", workerAuthMiddleware, async (req, res) => {
-  //@ts-ignore
-  const userId = req.userId;
-  const body = req.body;
-  const parsedBody = createSubmissionInput.safeParse(body);
+  try {
+    //@ts-ignore
+    const userId = req.userId;
+    const body = req.body;
+    const parsedBody = createSubmissionInput.safeParse(body);
 
-  if (parsedBody.success) {
+    console.log("Submission request:", { userId, body });
+
+    if (!parsedBody.success) {
+      return res.status(400).json({ 
+        message: "Invalid input", 
+        errors: parsedBody.error.errors 
+      });
+    }
+
+    // Verify task exists and matches
     const task = await getNextTask(Number(userId));
     if (!task || task?.id !== Number(parsedBody.data.taskId)) {
       return res.status(411).json({ message: "Incorrect task id" });
     }
+
     const amount = (Number(task.amount) / TOTAL_SUBMISSION);
 
-    const submission = await prismaClient.$transaction(async tx =>{
+    // Use a try-catch block with transaction
+    const submission = await prismaClient.$transaction(async (tx) => {
+      try {
+        // Create submission
+        const submissionRecord = await tx.submission.create({
+          data: {
+            option_id: Number(parsedBody.data.selection),
+            listner_id: userId,
+            task_id: Number(parsedBody.data.taskId),
+            amount,
+          },
+        });
 
-      const submission = await tx.submission.create({
-        data: {
-          option_id: Number(parsedBody.data.selection),
-          listner_id: userId,
-          task_id: Number(parsedBody.data.taskId),
-          amount,
-        },
-      });
+        // Update listener's pending amount
+        await tx.listner.update({
+          where: { id: userId },
+          data: {
+            pending_amount: {
+              increment: Number(amount)
+            }
+          },
+        });
 
-      await tx.listner.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          pending_amount:{
-            increment: Number(amount)
-          }
-          
-        },
-      })
+        return submissionRecord;
+      } catch (txError) {
+        console.error("Transaction error:", txError);
+        throw txError; // Re-throw to trigger transaction rollback
+      }
+    }, {
+      // Add transaction options
+      maxWait: 5000, // 5 seconds
+      timeout: 10000, // 10 seconds
+    });
 
-      return submission;
-    })
-
-  
-
+    // Get next task after successful submission
     const nextTask = await getNextTask(Number(userId));
+
     res.json({
       nextTask,
       amount,
     });
-    
+
+  } catch (error) {
+    console.error("Submission error:", error);
+
+    // Handle specific Prisma transaction error
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2028') {
+        return res.status(500).json({ 
+          message: "Database transaction timeout. Please try again.",
+          errorCode: 'TRANSACTION_TIMEOUT'
+        });
+      }
+    }
+
+    // Generic error handling
+    res.status(500).json({ 
+      message: "An unexpected error occurred during submission",
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
-
 router.get("/nextTask", workerAuthMiddleware, async (req, res) => {
   //@ts-ignore
   const userId = req.userId;
