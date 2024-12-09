@@ -20,10 +20,6 @@ const DEFUALT_TITLE = "TESTING";
 const TOTAL_DECIMALS = 1000_000_000;
 
 const s3Client = new S3Client({
-  // credentials:{
-  //   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  //   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  // }
   credentials: fromEnv(),
   region: "ap-south-1",
 });
@@ -125,14 +121,9 @@ router.post("/presignedURL", async (req, res) => {
 
   console.log("file name is " + filename);
 
-  // const command = new PutObjectCommand({
-  //   Bucket: "quecto",
-  //   Key: `/beats/${userId}/${Math.random()}/beats.mp3`,
-  //   //ContentType:
-  // });
 
   const { url, fields } = await createPresignedPost(s3Client, {
-    Bucket: "soundscorebucket",
+    Bucket: "soundscoredb",
     Key: `beats/${userId}/${Math.random()}/${filename}`,
     Conditions: [
       ["content-length-range", 0, 5 * 1024 * 1024], // 5 MB max
@@ -157,7 +148,7 @@ router.post("/signin", async (req, res) => {
     },
   });
 
-  if (existinguser) {
+  if (existinguser) { 
     const token = jwt.sign(
       {
         userId: existinguser.id,

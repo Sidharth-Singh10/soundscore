@@ -4,6 +4,7 @@ import Appbar from '@/app/Components/Appbar'
 import AudioPlayers from '@/app/Components/AudioPlayer/AudioPlayer'
 import MusicPlayer from '@/app/Components/MusicPlayer/MusicPlayer'
 import MusicPlayertemp from '@/app/Components/MusicPlayer/MusicPlayertemp'
+import { BackgroundLines } from '@/components/ui/background-lines'
 import axios from 'axios'
 import { motion } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
@@ -54,6 +55,7 @@ const Page = ({ params: { taskId } }: { params: { taskId: string } }) => {
       <div className="w-full z-20 ">
         <Appbar />
       </div>
+      <BackgroundLines className='relative '>
       <div className='relative top-[20%] p-4 w-full border border-green-900 h-[50%]'>
         <motion.div 
           className="flex flex-row h-full overflow-x-scroll no-scrollbar"
@@ -70,12 +72,36 @@ const Page = ({ params: { taskId } }: { params: { taskId: string } }) => {
                 count={value.count.toString()}
               />
             ))}
-            <MusicPlayertemp/>
-            <MusicPlayertemp/>
+            {/* <MusicPlayertemp/>
+            <MusicPlayertemp/> */}
+            {[1, 2,3,4].map((item) => (
+            <motion.div
+            key={`temp-${item}`}
+            initial={{ scale: 1 }}
+            whileHover={{
+              scale: 1.05,
+              transition: { 
+                type: "tween",
+                duration: 0.1
+              }
+            }}
+            whileTap={{ 
+              scale: 0.97,
+              transition: { 
+                type: "tween",
+                duration: 0.1
+              }
+            }}
+            className="hover:z-50 transition-all duration-200 h-full"
+          >
+            <MusicPlayertemp />
+          </motion.div>
+          ))}
           
           </div>
         </motion.div>
       </div>
+      </BackgroundLines>
     </main>
   )
 }

@@ -58,13 +58,13 @@ export const FileUpload = ({
         whileHover="animate"
         className="p-10 group/file block rounded-lg cursor-pointer w-full relative overflow-hidden"
       >
-        <input
+        {/* <input
           ref={fileInputRef}
           id="file-upload-handle"
           type="file"
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
-        />
+        /> */}
         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">
           <GridPattern />
         </div>

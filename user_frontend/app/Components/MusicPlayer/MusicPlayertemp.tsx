@@ -46,7 +46,7 @@ const MusicPlayertemp = () => {
 
 
     return (
-        <div className='h-full w-[20%] '>
+        <div className='h-full w-full '>
 
             <div className='rounded-3xl bg-white h-full w-full
             flex flex-col items-center

@@ -30,6 +30,9 @@ const UploadImage2 = ({
       updateFileName([filename]);
       setUploading(true);
       console.log("token is ", localStorage.getItem("token"));
+      console.log(`BackendURL is ${BACKEND_URL} `);
+
+
 
       const response = await axios.post(
         `${BACKEND_URL}/v1/user/presignedURL`,
@@ -56,19 +59,12 @@ const UploadImage2 = ({
       formData.append("X-Amz-Signature", fields["X-Amz-Signature"]);
       formData.append("file", file);
 
-      const awsResponse = await axios.post(
-        "https://localhost:3001/runcode",
-        formData
-      );
+      const awsResponse = await axios.post(presignedUrl, formData);
       console.log(awsResponse);
       // console.log(response.data.key);
 
-      updateFileURL([
-        `https://soundscorebucket.s3.ap-south-1.amazonaws.com/${response.data.fields["key"]}`,
-      ]);
-      console.log(
-        `https://soundscorebucket.s3.ap-south-1.amazonaws.com/${response.data.fields["key"]}`
-      );
+      updateFileURL([`${CLOUDFRONT_URL}/${response.data.fields["key"]}`]);
+      console.log(`${CLOUDFRONT_URL}/${response.data.fields["key"]}`);
     } catch (e) {
       console.log(e);
     }
@@ -76,24 +72,17 @@ const UploadImage2 = ({
   }
 
   return (
-    // <div className='w-full relative btn btn-ghost rounded-3xl h-1/2 flex flex-col items-center gap-2 justify-center bg-[#363636] border border-[#4a4949] border-dashed '>
-    //     <input
-    //         type="file"
-    //         onChange={onFileSelect}
-    //         id="fileInput"
-    //         className=' absolute h-full w-full  opacity-0  cursor-pointer'
-    //     />
-    //     <div className='img'>
-    //         <img src="fileIcon.png" alt="" />
-    //     </div>
-    //     <div className='text-white text-xl font-bold'>
-    //         Drop your file or <span className='text-green-900 font-bold' >Click </span>  to Browse
-    //     </div>
-
-    // </div>
-
-    <div className="w-full max-w-4xl  mx-auto min-h-96 border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
+    <div className="w-full max-w-4xl relative  mx-auto min-h-96 border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
+     <input
+        type="file"
+        onChange={onFileSelect}
+        id="fileInput"
+        className="relative top-0 left-0 h-full w-full z-10 opacity-0 cursor-pointer border border-green-800"
+      />
+      <div className="absolute top-0 left-0 h-full w-full z-5">
       <FileUpload />
+      </div>
+     
     </div>
   );
 };
