@@ -9,7 +9,6 @@ const MusicPlayer = ({ audioSrc, count }: {
     audioSrc: string,
     count: string,
 }) => {
-    // var audioSrc = "https://soundscorebucket.s3.ap-south-1.amazonaws.com/beats/1/0.4551015283429436/Kayou+Jujutsu+Kaisen.mp3"
 
     const [metadata, setMetadata] = useState<IAudioMetadata | null>(null);
     useEffect(() => {
@@ -124,7 +123,7 @@ const MusicPlayer = ({ audioSrc, count }: {
     };
 
     return (
-        <div className='h-full w-[20%] '>
+        <div className='h-full w-full '>
 
             <div className='rounded-3xl bg-white h-full w-full
             flex flex-col items-center

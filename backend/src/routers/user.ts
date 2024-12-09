@@ -17,7 +17,7 @@ const router = Router();
 import { createTaskInput } from "../types";
 const prismaClient = new PrismaClient();
 const DEFUALT_TITLE = "TESTING";
-const TOTAL_DECIMALS = 1000_000_000;
+const TOTAL_DECIMALS = 1000_000;
 
 const s3Client = new S3Client({
   credentials: fromEnv(),

@@ -12,7 +12,7 @@ import { getNextTask } from "../db";
 import { createSubmissionInput } from "../types";
 
 const TOTAL_SUBMISSION = 100;
-const TOTAL_DECIMALS = 1000_000;
+// const TOTAL_DECIMALS = 1000_000;
 
 
 router.post("/payout", workerAuthMiddleware, async(req,res) =>

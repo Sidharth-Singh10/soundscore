@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { BACKEND_URL } from "@/Utils/Utils";
 import DisplayFiles from "./DisplayFiles";
+import { useRouter } from "next/navigation";
 
 const Upload = () => {
+  const router = useRouter();
   const [fileName, setFileName] = useState<string[]>([]);
   const updateFileName = (newFileName: string[]) => {
     setFileName([...fileName, ...newFileName]);
@@ -41,7 +43,7 @@ const Upload = () => {
       }
     );
 
-    // useRouter.push(`/task/${response.data.id}`)
+    router.push(`/task/${response.data.id}`)
   }
 
   return (

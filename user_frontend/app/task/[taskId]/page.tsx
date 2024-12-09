@@ -66,14 +66,33 @@ const Page = ({ params: { taskId } }: { params: { taskId: string } }) => {
         >
           <div className="flex flex-row w-full h-full justify-center items-center gap-6 min-w-fit">
             {Object.entries(result).map(([key, value]) => (
+               <motion.div
+               key={`temp-${key}`}
+               initial={{ scale: 1 }}
+               whileHover={{
+                 scale: 1.05,
+                 transition: { 
+                   type: "tween",
+                   duration: 0.1
+                 }
+               }}
+               whileTap={{ 
+                 scale: 0.97,
+                 transition: { 
+                   type: "tween",
+                   duration: 0.1
+                 }
+               }}
+               className="hover:z-50 transition-all duration-200 h-full"
+             >
               <MusicPlayer
                 key={key}
                 audioSrc={value.option.imageUrl}
                 count={value.count.toString()}
               />
+              </motion.div>
             ))}
-            {/* <MusicPlayertemp/>
-            <MusicPlayertemp/> */}
+           
             {[1, 2,3,4].map((item) => (
             <motion.div
             key={`temp-${item}`}
