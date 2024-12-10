@@ -3,6 +3,7 @@ import axios, { AxiosError } from "axios";
 import React, { useEffect, useState } from "react";
 import MusicPlayer from "./MusicPlayer/MusicPlayer";
 import { motion } from "framer-motion";
+import MultiCircleLoader from "@/components/ui/spinLoader";
 
 interface Task {
   id: number;
@@ -22,6 +23,7 @@ const NextTask: React.FC<NextTaskProps> = ({ setTitle }) => {
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchNextTask = async () => {
     try {
@@ -76,6 +78,7 @@ const NextTask: React.FC<NextTaskProps> = ({ setTitle }) => {
   const handleOptionSubmission = async (option: Task["options"][0]) => {
     console.log("clicekd ");
     try {
+      setIsSubmitting(true);
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No authentication token found");
@@ -119,6 +122,8 @@ const NextTask: React.FC<NextTaskProps> = ({ setTitle }) => {
       } else {
         setError((err as Error).message);
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -140,35 +145,37 @@ const NextTask: React.FC<NextTaskProps> = ({ setTitle }) => {
 
   return (
     <div className="flex flex-row w-full h-full justify-center items-center gap-6 min-w-fit">
-      {" "}
-      {currentTask.options.map((option) => (
-        <motion.div
-          key={`temp-${option.id}`}
-          initial={{ scale: 1 }}
-          whileHover={{
-            scale: 1.05,
-            transition: {
-              type: "tween",
-              duration: 0.1,
-            },
-          }}
-          whileTap={{
-            scale: 0.97,
-            transition: {
-              type: "tween",
-              duration: 0.1,
-            },
-          }}
-          className="hover:z-50 transition-all duration-200 h-full"
-        >
-          <MusicPlayer
-            key={option.id}
-            audioSrc={option.beat_url}
-            //  count={value.count.toString()}
-            onSelect={() => handleOptionSubmission(option)}
-          />
-        </motion.div>
-      ))}
+      {isSubmitting ? (
+        <MultiCircleLoader />
+      ) : (
+        currentTask.options.map((option) => (
+          <motion.div
+            key={`temp-${option.id}`}
+            initial={{ scale: 1 }}
+            whileHover={{
+              scale: 1.05,
+              transition: {
+                type: "tween",
+                duration: 0.1,
+              },
+            }}
+            whileTap={{
+              scale: 0.97,
+              transition: {
+                type: "tween",
+                duration: 0.1,
+              },
+            }}
+            className="hover:z-50 transition-all duration-200 h-full"
+          >
+            <MusicPlayer
+              key={option.id}
+              audioSrc={option.beat_url}
+              onSelect={() => handleOptionSubmission(option)}
+            />
+          </motion.div>
+        ))
+      )}
     </div>
   );
 };
