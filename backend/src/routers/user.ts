@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
-import cors from "cors";
-
+import nacl from "tweetnacl";
 import {
   S3Client,
   GetObjectCommand,
@@ -10,11 +9,12 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { fromEnv } from "@aws-sdk/credential-providers";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config";
+import { JWT_SECRET, RPC_SERVER_URL } from "../config";
 import { authMiddleware, workerAuthMiddleware } from "../middleware";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 const router = Router();
 import { createTaskInput } from "../types";
+import { Connection, PublicKey } from "@solana/web3.js";
 const prismaClient = new PrismaClient();
 const DEFUALT_TITLE = "TESTING";
 const TOTAL_DECIMALS = 1000_000;
@@ -23,6 +23,8 @@ const s3Client = new S3Client({
   credentials: fromEnv(),
   region: "ap-south-1",
 });
+const connection = new Connection(RPC_SERVER_URL);
+const PARENT_WALLET_ADDRESS = "BjmkyM188C6mZ8SVjJ7KRP1qk7aLqB7fLeqymmWKrT3m";
 
 router.get("/task", authMiddleware, async (req, res) => {
   //@ts-ignore
@@ -85,15 +87,46 @@ router.post("/task", authMiddleware, async (req, res) => {
   // validating the inputs
   const body = req.body;
   const parsedData = createTaskInput.safeParse(body);
+
+  const user = await prismaClient.user.findFirst({
+    where: {
+      id: userId
+    }
+  })
   if (!parsedData.success) {
-    return res.status(400).json({ message: "Wrong input", errors: parsedData.error.errors });
+    return res.status(411).json({
+      message: "You've sent the wrong inputs"
+    })
   }
+  const transaction = await connection.getTransaction(parsedData.data.signature, {
+    maxSupportedTransactionVersion: 1
+  });
+
+
+  if ((transaction?.meta?.postBalances[1] ?? 0) - (transaction?.meta?.preBalances[1] ?? 0) !== 100000000) {
+    return res.status(411).json({
+      message: "Transaction signature/amount incorrect"
+    })
+  }
+
+  if (transaction?.transaction.message.getAccountKeys().get(1)?.toString() !== PARENT_WALLET_ADDRESS) {
+    return res.status(411).json({
+      message: "Transaction sent to wrong address"
+    })
+  }
+
+  if (transaction?.transaction.message.getAccountKeys().get(0)?.toString() !== user?.address) {
+    return res.status(411).json({
+      message: "Transaction sent to wrong address"
+    })
+  }
+
   console.log("SUCCESS BC!!!");
   const response = await prismaClient.$transaction(async (tx) => {
     const response = await tx.task.create({
       data: {
         title: parsedData.data.title ?? DEFUALT_TITLE,
-        amount: 1 * TOTAL_DECIMALS,
+        amount: 0.1 * TOTAL_DECIMALS,
         signature: parsedData.data.signature,
         user_id: userId,
       },
@@ -140,15 +173,30 @@ router.post("/presignedURL", async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
-  const hardcodeduseraddress = "GwmgDqZqkhUxAK828W3C1jwKp3AJ7LtFRUtZ3DCsjHNV";
+  const { publicKey, signature } = req.body;
+
+  const signedString = "Sign into nirvana"
+  const message = new TextEncoder().encode("Sign into nirvana");
+  const verified = nacl.sign.detached.verify(
+    message,
+    new Uint8Array(signature.data),
+    new PublicKey(publicKey).toBytes(),
+  );
+  // console.log(verified);
+  if (!verified) {
+    return res.status(411).json({
+        message: "Incorrect signature"
+    })
+}
+
 
   const existinguser = await prismaClient.user.findFirst({
     where: {
-      address: hardcodeduseraddress,
+      address: publicKey,
     },
   });
 
-  if (existinguser) { 
+  if (existinguser) {
     const token = jwt.sign(
       {
         userId: existinguser.id,
@@ -162,7 +210,7 @@ router.post("/signin", async (req, res) => {
   } else {
     const user = await prismaClient.user.create({
       data: {
-        address: hardcodeduseraddress,
+        address: publicKey,
       },
     });
     const token = jwt.sign(

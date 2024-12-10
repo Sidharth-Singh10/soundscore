@@ -1,86 +1,105 @@
 import { Router } from "express";
+import nacl from "tweetnacl";
 import { Prisma, PrismaClient } from "@prisma/client";
 const router = Router();
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config";
+import { JWT_SECRET, PRIVATE_KEY, RPC_SERVER_URL, TOTAL_DECIMALS } from "../config";
 import { workerAuthMiddleware } from "../middleware";
 import { textSpanContainsTextSpan } from "typescript";
 const prismaClient = new PrismaClient();
-
+const connection = new Connection(RPC_SERVER_URL);
 import { WORKER_JWT_SECRET } from "../config";
 import { getNextTask } from "../db";
 import { createSubmissionInput } from "../types";
-
+import { Connection, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
+import  decode  from "bs58";
 const TOTAL_SUBMISSION = 100;
 // const TOTAL_DECIMALS = 1000_000;
 
 
-router.post("/payout", workerAuthMiddleware, async(req,res) =>
-{
+router.post("/payout", workerAuthMiddleware, async (req, res) => {
   //@ts-ignore
-  const userId:string = req.userId;
+  const userId: string = req.userId;
   const listner = await prismaClient.listner.findFirst({
-    where:{
-      id:Number(userId)
+    where: {
+      id: Number(userId)
     }
   })
 
-  if(!listner)
-    {
-      return res.status(403).json({message:"User not found"})
-    }
+  if (!listner) {
+    return res.status(403).json({ message: "User not found" })
+  }
+  const transaction = new Transaction().add(
+    SystemProgram.transfer({
+        fromPubkey: new PublicKey("BjmkyM188C6mZ8SVjJ7KRP1qk7aLqB7fLeqymmWKrT3m"),
+        toPubkey: new PublicKey(listner.address),
+        lamports: 1000_000_000 * listner.pending_amount / TOTAL_DECIMALS,
+    })
+);
 
-    const address = listner.address;
+const keypair = Keypair.fromSecretKey(decode(PRIVATE_KEY));
+// const keypair = Keypair.fromSecretKey(decode(PRIVATE_KEY) as Uint8Array);//+
 
-    const  txnId = "Ox12412124"
+  let signature = "";
+  try {
+      signature = await sendAndConfirmTransaction(
+          connection,
+          transaction,
+          [keypair],
+      );
 
-    await prismaClient.$transaction(async tx =>{
-      await tx.listner.update({
-        where:{
-          id:Number(userId)
+   } catch(e) {
+      return res.json({
+          message: "Transaction failed"
+      })
+   }
+
+  await prismaClient.$transaction(async tx => {
+    await tx.listner.update({
+      where: {
+        id: Number(userId)
+      },
+      data: {
+        pending_amount: {
+          decrement: listner.pending_amount
         },
-        data:{
-          pending_amount:{
-            decrement:listner.pending_amount
-          },
-          locked_amount:{
-            increment:listner.pending_amount
-          }
+        locked_amount: {
+          increment: listner.pending_amount
         }
+      }
 
-      })
-
-      await tx.payout.create({
-        data:{
-          user_id:Number(userId),
-          amount: listner.pending_amount,
-          status:"Processing",
-          signature:txnId
-        }
-      })
     })
 
-    res.json({
-      Message:"Processing payout",
-      amount:listner.pending_amount
+    await tx.payout.create({
+      data: {
+        user_id: Number(userId),
+        amount: listner.pending_amount,
+        status: "Processing",
+        signature: signature
+      }
     })
+  })
 
+  res.json({
+    Message: "Processing payout",
+    amount: listner.pending_amount
+  })
 
 })
 
-router.get('/balance', workerAuthMiddleware,async(req,res)=>{
+router.get('/balance', workerAuthMiddleware, async (req, res) => {
   //@ts-ignore
-  const userId:string = req.userId;
+  const userId: string = req.userId;
 
   const listener = await prismaClient.listner.findFirst({
-    where:{
-      id:Number(userId)
+    where: {
+      id: Number(userId)
     }
   })
   res.json(
     {
       pendingAmount: listener?.pending_amount,
-      lockedAmount:listener?.locked_amount
+      lockedAmount: listener?.locked_amount
     }
   );
 })
@@ -95,9 +114,9 @@ router.post("/submission", workerAuthMiddleware, async (req, res) => {
     console.log("Submission request:", { userId, body });
 
     if (!parsedBody.success) {
-      return res.status(400).json({ 
-        message: "Invalid input", 
-        errors: parsedBody.error.errors 
+      return res.status(400).json({
+        message: "Invalid input",
+        errors: parsedBody.error.errors
       });
     }
 
@@ -157,7 +176,7 @@ router.post("/submission", workerAuthMiddleware, async (req, res) => {
     // Handle specific Prisma transaction error
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2028') {
-        return res.status(500).json({ 
+        return res.status(500).json({
           message: "Database transaction timeout. Please try again.",
           errorCode: 'TRANSACTION_TIMEOUT'
         });
@@ -165,7 +184,7 @@ router.post("/submission", workerAuthMiddleware, async (req, res) => {
     }
 
     // Generic error handling
-    res.status(500).json({ 
+    res.status(500).json({
       message: "An unexpected error occurred during submission",
       error: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -185,11 +204,23 @@ router.get("/nextTask", workerAuthMiddleware, async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
-  const hardcodeduseraddress = "GwmgDqZqkhUxAK828W3C1jwKp3AJ7LtFRUtZ3DCsjHNV";
+  // const hardcodeduseraddress = "GwmgDqZqkhUxAK828W3C1jwKp3AJ7LtFRUtZ3DCsjHNV";
+  const { publicKey, signature } = req.body;
+  const message = new TextEncoder().encode("Sign into nirvana as listner");
+  const result = nacl.sign.detached.verify(
+    message,
+    new Uint8Array(signature.data),
+    new PublicKey(publicKey).toBytes(),
+  );
+  if (!result) {
+    return res.status(411).json({
+      message: "Incorrect signature"
+    })
+  }
 
   const existinguser = await prismaClient.listner.findFirst({
     where: {
-      address: hardcodeduseraddress,
+      address: publicKey,
     },
   });
 
@@ -203,11 +234,12 @@ router.post("/signin", async (req, res) => {
 
     res.json({
       token,
+      amount: existinguser.pending_amount / TOTAL_DECIMALS
     });
   } else {
     const user = await prismaClient.listner.create({
       data: {
-        address: hardcodeduseraddress,
+        address: publicKey,
         pending_amount: 0,
         locked_amount: 0,
       },
@@ -221,6 +253,7 @@ router.post("/signin", async (req, res) => {
 
     res.json({
       token,
+      amount: 0
     });
   }
 });

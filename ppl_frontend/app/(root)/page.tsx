@@ -1,7 +1,7 @@
 "use client";
 import Appbar from "@/app/Components/Appbar";
 import React, { useState } from "react";
-import NextTask from "./Components/NextTask";
+import NextTask from "../Components/NextTask";
 import { motion } from "framer-motion";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { BackgroundLines } from "@/components/ui/background-lines";

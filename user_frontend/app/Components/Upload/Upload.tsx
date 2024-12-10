@@ -6,9 +6,14 @@ import axios from "axios";
 import { BACKEND_URL } from "@/Utils/Utils";
 import DisplayFiles from "./DisplayFiles";
 import { useRouter } from "next/navigation";
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 const Upload = () => {
   const router = useRouter();
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
+  const [txSignature, setTxSignature] = useState("");
   const [fileName, setFileName] = useState<string[]>([]);
   const updateFileName = (newFileName: string[]) => {
     setFileName([...fileName, ...newFileName]);
@@ -43,7 +48,33 @@ const Upload = () => {
       }
     );
 
-    router.push(`/task/${response.data.id}`)
+    router.push(`/task/${response.data.id}`);
+  }
+
+  async function makePayment() {
+    const transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: publicKey!,
+        toPubkey: new PublicKey("BjmkyM188C6mZ8SVjJ7KRP1qk7aLqB7fLeqymmWKrT3m"),
+        lamports: 100000000,
+      })
+    );
+
+    const {
+      context: { slot: minContextSlot },
+      value: { blockhash, lastValidBlockHeight },
+    } = await connection.getLatestBlockhashAndContext();
+
+    const signature = await sendTransaction(transaction, connection, {
+      minContextSlot,
+    });
+
+    await connection.confirmTransaction({
+      blockhash,
+      lastValidBlockHeight,
+      signature,
+    });
+    setTxSignature(signature);
   }
 
   return (
@@ -80,11 +111,11 @@ const Upload = () => {
         </button>
 
         <button
-          onClick={onSubmit}
+          onClick={txSignature ? onSubmit:makePayment}
           className="px-12 py-4 rounded-full bg-[#1ED760] font-bold text-white tracking-widest uppercase
           transform hover:scale-105 hover:bg-[#21e065] transition-colors duration-200"
         >
-          Save
+          {txSignature ? "Submit" : "Pay 0.1 SOL"}
         </button>
       </div>
     </div>

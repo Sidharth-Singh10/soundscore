@@ -1,7 +1,7 @@
 "use client"; 
-import Appbar from "./Components/Appbar";
-import Banner from "./Components/Banner/Banner";
-import Upload from "./Components/Upload/Upload";
+import Appbar from "../Components/Appbar";
+import Banner from "../Components/Banner/Banner";
+import Upload from "../Components/Upload/Upload";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { motion } from 'framer-motion'
 export default function Home() {
