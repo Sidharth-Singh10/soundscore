@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { IAudioMetadata } from "music-metadata";
 import * as musicMetadata from "music-metadata";
+import LikeSection from "./likesection";
+import Image from "next/image";
 
 // SVG Icons as Components
 const PlayIcon = () => (
@@ -150,12 +152,18 @@ const MusicPlayer = ({
       const base64String = uint8ArrayToBase64(picture.data);
 
       return base64String ? (
-        <img
+        <Image
           src={`data:${picture.format};base64,${base64String}`}
-          alt="Album Artwork"
-          className="h-full w-full rounded-3xl object-cover"
+          width={200}
+          height={200}
+          className="rounded-3xl h-full object-cover"
+          alt="Picture of the author"
         />
       ) : (
+        // <img
+        //   alt="Album Artwork"
+        //   className="h-full w-full rounded-3xl object-cover"
+        // />
         <img
           src="/slowmotion.jpg"
           alt="Default Artwork"
@@ -204,7 +212,7 @@ const MusicPlayer = ({
       <div className="rounded-3xl bg-white h-full w-full flex flex-col items-center shadow-[0px_20px_125px_10px_rgba(39,_70,_132,_1)] pt-8 px-4 gap-4">
         <div
           id="image"
-          className="rounded-3xl bg-black h-[40%] w-full shadow-[0px_20px_125px_10px_rgba(39,_70,_132,_0.7)]"
+          className="rounded-3xl bg-black h-[40%] overflow-clip w-full shadow-[0px_20px_125px_10px_rgba(39,_70,_132,_0.7)]"
         >
           {renderImage()}
         </div>
@@ -291,12 +299,8 @@ const MusicPlayer = ({
             </motion.button>
           </div>
         </div>
-
-        <div className="w-full flex items-center">
-          <div className="btn btn-ghost">
-            <img src="/like.png" alt="Like" />
-            <div className="text-3xl">{count}</div>
-          </div>
+        <div className="relative top-[-10%]">
+          <LikeSection count={Number(count)} />
         </div>
       </div>
     </div>

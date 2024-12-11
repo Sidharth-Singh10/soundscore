@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import LikeSection from "./likesection";
 
 // SVG Icons as Components
 const PlayIcon = () => (
@@ -178,6 +179,7 @@ const MusicPlayertemp = () => {
               <ForwardIcon />
             </motion.button>
           </div>
+          <LikeSection count={5}  />
         </div>
       </div>
     </div>

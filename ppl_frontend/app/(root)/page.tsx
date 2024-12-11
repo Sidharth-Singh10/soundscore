@@ -10,16 +10,16 @@ const Page = () => {
   const [title, setTitle] = useState("NO Tasks Available");
 
   return (
-    <main className="w-full h-screen border border-orange-900 bg-black">
+    <main className="w-full h-screen  bg-black">
       <div className="w-full   z-20 ">
         <Appbar />
       </div>
-      <BackgroundLines>
-        <div className="w-full relative border border-red-600 flex justify-center top-[10%]">
+      <BackgroundLines className='relative'>
+        <div className="w-full relative flex justify-center top-[10%]">
           <TextGenerateEffect words={title} />
         </div>
 
-        <div className="relative top-[20%] p-4 w-full border border-green-900 h-[50%]">
+        <div className="relative top-[20%] p-4 w-full  h-[50%]">
           <motion.div
             className="flex flex-row h-full overflow-x-scroll no-scrollbar"
             drag="x"

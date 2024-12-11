@@ -86,29 +86,19 @@ const Appbar = () => {
         <div className="navbar-center hidden lg:flex">
           <ul className="menu text-xl menu-horizontal px-1">
             <li>
-              <a>Item 1</a>
-            </li>
-            <li>
-              <details>
-                <summary>Parent</summary>
-                <ul className="p-2">
-                  <li>
-                    <a>Submenu 1</a>
-                  </li>
-                  <li>
-                    <a>Submenu 2</a>
-                  </li>
-                </ul>
-              </details>
-            </li>
-            <li>
-              <a>Item 3</a>
+              <a>Your Reward: 0.2 Sol</a>
             </li>
           </ul>
         </div>
-        <div className="navbar-end">
+        <div className="navbar-end gap-2">
           {/* <a className="btn btn-secondary text-xl">Connect</a> */}
           {/* {publickey ? <WalletMultiButton/> : <WalletDisconnectButton/>} */}
+          <button className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+            <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+            <span className="text-lg  inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1  font-semibold text-white backdrop-blur-3xl">
+              PayOut
+            </span>
+          </button>
           <WalletMultiButton />
         </div>
       </div>

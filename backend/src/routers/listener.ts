@@ -7,7 +7,6 @@ import { JWT_SECRET, PRIVATE_KEY, RPC_SERVER_URL, TOTAL_DECIMALS } from "../conf
 import { workerAuthMiddleware } from "../middleware";
 import { textSpanContainsTextSpan } from "typescript";
 const prismaClient = new PrismaClient();
-const connection = new Connection(RPC_SERVER_URL);
 import { WORKER_JWT_SECRET } from "../config";
 import { getNextTask } from "../db";
 import { createSubmissionInput } from "../types";
@@ -16,6 +15,7 @@ import  decode  from "bs58";
 const TOTAL_SUBMISSION = 100;
 // const TOTAL_DECIMALS = 1000_000;
 
+const connection = new Connection(RPC_SERVER_URL);
 
 router.post("/payout", workerAuthMiddleware, async (req, res) => {
   //@ts-ignore
@@ -36,8 +36,8 @@ router.post("/payout", workerAuthMiddleware, async (req, res) => {
         lamports: 1000_000_000 * listner.pending_amount / TOTAL_DECIMALS,
     })
 );
-
-const keypair = Keypair.fromSecretKey(decode(PRIVATE_KEY));
+let something = decode.decode(PRIVATE_KEY);
+const keypair = Keypair.fromSecretKey(something);
 // const keypair = Keypair.fromSecretKey(decode(PRIVATE_KEY) as Uint8Array);//+
 
   let signature = "";

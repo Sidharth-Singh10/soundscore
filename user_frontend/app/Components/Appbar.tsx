@@ -67,7 +67,7 @@ const Appbar = () => {
                 <a>Item 1</a>
               </li>
               <li>
-                <a>Parent</a>
+                <a>Your Tasks</a>
                 <ul className="p-2">
                   <li>
                     <a>Submenu 1</a>
@@ -87,11 +87,11 @@ const Appbar = () => {
         <div className="navbar-center hidden lg:flex">
           <ul className="menu text-xl menu-horizontal px-1">
             <li>
-              <a>Item 1</a>
+              {/* <a>Item 1</a> */}
             </li>
             <li>
               <details>
-                <summary>Parent</summary>
+                <summary>Your Tasks</summary>
                 <ul className="p-2">
                   <li>
                     <a>Submenu 1</a>
@@ -103,7 +103,7 @@ const Appbar = () => {
               </details>
             </li>
             <li>
-              <a>Item 3</a>
+              {/* <a>Item 3</a> */}
             </li>
           </ul>
         </div>

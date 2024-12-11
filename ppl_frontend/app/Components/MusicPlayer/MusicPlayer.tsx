@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { IAudioMetadata } from 'music-metadata';
 import * as musicMetadata from 'music-metadata';
 import { Buffer } from 'buffer';
+import Image from 'next/image';
 
 // SVG Icons as Components
 const PlayIcon = () => (
@@ -111,11 +112,13 @@ const MusicPlayer = ({
                 
                 if (base64String) {
                     return (
-                        <img
-                            src={`data:${picture.format};base64,${base64String}`}
-                            alt={metadata.common.title || "Album Artwork"}
-                            className='h-full w-full rounded-3xl object-cover' 
-                        />
+                        <Image
+                        src={`data:${picture.format};base64,${base64String}`}
+                        width={200}
+                        height={200}
+                        className="rounded-3xl h-full object-cover"
+                        alt="Picture of the author"
+                      />
                     );
                 }
             } catch (error) {

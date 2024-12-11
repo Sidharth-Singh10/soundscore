@@ -51,12 +51,12 @@ const Page = ({ params: { taskId } }: { params: { taskId: string } }) => {
 
 
   return (
-    <main className='w-full h-screen border border-orange-900 bg-black'>
+    <main className='w-full h-screen  bg-black'>
       <div className="w-full z-20 ">
         <Appbar />
       </div>
       <BackgroundLines className='relative '>
-      <div className='relative top-[20%] p-4 w-full border border-green-900 h-[50%]'>
+      <div className='relative top-[20%] p-4 w-full  h-[50%]'>
         <motion.div 
           className="flex flex-row h-full overflow-x-scroll no-scrollbar"
           drag="x"
@@ -113,7 +113,7 @@ const Page = ({ params: { taskId } }: { params: { taskId: string } }) => {
             }}
             className="hover:z-50 transition-all duration-200 h-full"
           >
-            <MusicPlayertemp />
+            {/* <MusicPlayertemp /> */}
           </motion.div>
           ))}
           
