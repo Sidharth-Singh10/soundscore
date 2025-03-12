@@ -13,7 +13,7 @@ const Upload = () => {
   const router = useRouter();
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
-  const [txSignature, setTxSignature] = useState("");
+  const [txSignature, setTxSignature] = useState("qwqweqw");
   const [fileName, setFileName] = useState<string[]>([]);
   const updateFileName = (newFileName: string[]) => {
     setFileName([...fileName, ...newFileName]);

@@ -9,3 +9,9 @@ backend-deploy.yaml
 DATABASE_URL.yaml
 BACKEND_URL.yaml
 frontend-deploy.yaml
+/soundscore_contracts/.anchor
+/soundscore_contracts/.DS_Store
+/soundscore_contracts/target
+/soundscore_contracts/**/*.rs.bk
+/soundscore_contracts/node_modules
+/soundscore_contracts/test-ledger
